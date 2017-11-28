@@ -1,0 +1,13 @@
+{
+  "name": "ditto-hbs",
+  "version": "1.0.0",
+  "description": "Ditto Handlers Builder",
+  "main": "index.js",
+  "scripts": {
+  },
+  "author": "",
+  "license": "GPL-3.0",
+  "dependencies": {
+    "handlebars": "^4.0.11"
+  }
+}

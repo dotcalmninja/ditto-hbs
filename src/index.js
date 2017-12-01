@@ -18,6 +18,7 @@ function DittoHbs(opt) {
   	templates: './templates'
 	};
   this.files = {};
+  this.metadata = {};
 	this.templates = {};
 };
 
@@ -27,6 +28,7 @@ util.inherits(DittoHbs, events.EventEmitter);
 /* Run */
 DittoHbs.prototype.run = function(files, Ditto, done) {
   this.files = files;
+  this.metadata = Ditto._metadata;
 
   //register listeners
   this.on("foundPartials", this.registerPartials);
@@ -148,12 +150,15 @@ DittoHbs.prototype.renderHtml = function () {
 		var file = self.files[filepath],
 				parsedPath = path.parse(filepath),
 				tmpl = file.template || self.opt.defaultTemplate,
-				html = self.templates[tmpl](file.content),
 				newFileDotPath = (parsedPath.name !== "index") ?
 														path.join(parsedPath.dir, parsedPath.name, "index.html") :
 														path.join(parsedPath.dir, parsedPath.name + ".html");
 
-		file.content = html;
+    var pageData = file.content;
+
+    if(self.metadata) pageData.metadata = self.metadata;
+
+		file.content = self.templates[tmpl](file.content);
 		file.path = newFileDotPath;
 	});
 

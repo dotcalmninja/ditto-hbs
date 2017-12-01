@@ -1,78 +1,76 @@
 /*
- * Ditto Handlebars Writer
+ * Ditto Handlebars Middleware
  */
 const 
+	events = require('events'),
 	fs = require('fs'),
 	hbs = require('handlebars'),
-	path = require('path');
+	path = require('path'),
+	util = require('util');
 
 module.exports = DittoHbs;
 
 function DittoHbs(opt) {
+	events.EventEmitter.call(this);
+
 	opt = opt || {};
 
-	var _registerPartials = [];
+	return function(files, Ditto, done){
+		this.run(files, Ditto, done);
+	};
+};
 
+/* Inherit Event Emitter prototype */
+util.inherits(DittoHbs, events.EventEmitter);
+
+/* Run */
+DittoHbs.prototype.run = function(files, Ditto, done){
+	console.log("das");
+};
+
+/* Register Partials */
+DittoHbs.prototype.registerPartials = function(opt){
+	var 
+		self = this,
+		partialsDir = path.resolve(opt.partials),
+		promises = [];		
+		
 	if(opt.partials)
 	{
 		var partialsDir = path.resolve(opt.partials);		
 		
-		fs.readdir(partialsDir, function(err, filenames){				
+		fs.readdir(partialsDir, function(err, filepaths){				
 			if(err) throw err;
 
-			filenames.map(function(filename){					
-				if (path.extname(filename) === '.hbs')
+			filepaths.map(function(filepath){					
+				if (path.extname(filepath) === '.hbs')
 				{
-					_registerPartials.push(registerPartial(path.resolve(partialsDir, filename)));
+					promises.push(self.registerPartial(filepath));
 				}					
 			});
 		});
 	}
 
-  return function(files, Ditto) {  	
-		Promise
-			.all(_registerPartials)
-			.then(function(){
-				
-			})
-			.catch(function(err){
-				console.error(err);
-			});
-  };
+	Promise.all(promises)
+    .then(function(){
+      self.emit("registeredPartials");
+    })
+    .catch(function(reason){
+      throw new Error(reason);
+    });
 };
 
-function registerPartial(filename){
+DittoHbs.prototype.registerPartial = function(filepath){
 	return new Promise(function(resolve, reject){
-		fs.readFile(filename, function(err, data){							
+		fs.readFile(filepath, function(err, data){							
 			if(err) {
 				console.error(err);
 				reject(err);
 			}
 			else {
-				hbs.registerPartial(path.parse(filename).name, data);
-				resolve({});
+				hbs.registerPartial(path.parse(filepath).name, data);
+				resolve();
 			}			
 		});		
-	});
-};
-
-function compileTemplate(filename){
-	return new Promise(function(resolve, reject){
-		fs.readFile(filename, function(err, data){							
-			if(err) {
-				console.error(err);
-				reject(err);
-			}
-			else {
-				hbs.registerPartial(path.parse(filename).name, data);
-				resolve({});
-			}			
-		});		
-	});
-};
-
-function writeFile(filename){
-	return new Promise(function(resolve, reject){
-
 	});
 };

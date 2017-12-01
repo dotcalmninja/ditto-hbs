@@ -1,2 +1,2 @@
-# ditto-hbs
-Ditto Handlebars - Ditto Handlers Builder
+# ditto-layout
+Ditto Layout Middleware

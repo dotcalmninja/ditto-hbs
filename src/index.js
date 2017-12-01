@@ -12,8 +12,6 @@ const
 module.exports = DittoHbs;
 
 function DittoHbs(opt) {
-  events.EventEmitter.call(this);
-
   this.opt = opt || {
 		defaultTemplate: 'index',
   	partials: './templates/partials',
@@ -34,8 +32,8 @@ DittoHbs.prototype.run = function(files, Ditto, done) {
   this.on("foundPartials", this.registerPartials);
   this.on("registeredPartials", this.discoverTemplates);
   this.on("foundTemplates", this.compileTemplates);
-	this.on("compiledTemplates", this.renderHtml);
-	this.on("renderHtmlComplete", done);
+  this.on("compiledTemplates", this.renderHtml);
+  this.on("renderHtmlComplete", done);
 
   try {
     //kickoff build
@@ -154,7 +152,7 @@ DittoHbs.prototype.renderHtml = function () {
 				newFileDotPath = (parsedPath.name !== "index") ?
 														path.join(parsedPath.dir, parsedPath.name, "index.html") :
 														path.join(parsedPath.dir, parsedPath.name + ".html");
-		
+
 		file.content = html;
 		file.path = newFileDotPath;
 	});

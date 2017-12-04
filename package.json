@@ -1,7 +1,7 @@
 {
-  "name": "ditto-hbs",
-  "version": "1.0.0",
-  "description": "Ditto Handlers Builder",
+  "name": "ditt0-hbs",
+  "version": "1.0.1",
+  "description": "Ditto Handlebars Middleware",
   "main": "index.js",
   "scripts": {
   },
@@ -10,5 +10,15 @@
   "dependencies": {
     "glob": "^7.1.2",
     "handlebars": "^4.0.11"
-  }
+  },
+  "author": "Pim Brouwers",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pimbrouwers/ditto-hbs.git"
+  },
+  "bugs": {
+    "url": "https://github.com/pimbrouwers/ditto-hbs/issues"
+  },
+  "homepage": "https://github.com/pimbrouwers/ditto-hbs#readme"
 }

@@ -27,6 +27,8 @@ util.inherits(DittoHbs, events.EventEmitter);
 
 /* Run */
 DittoHbs.prototype.run = function(files, Ditto, done) {
+    console.info("> Handlebars Compiled");
+
     this.files = files;
     this.metadata = Ditto._metadata;
 
@@ -48,8 +50,6 @@ DittoHbs.prototype.run = function(files, Ditto, done) {
 
 /* Compile Pages */
 DittoHbs.prototype.compileTemplates = function(filepaths) {
-    console.info("INFO: compileTemplates()");
-
     var self = this,
         templatesDir = path.resolve(self.opt.templates),
         promises = [];
@@ -85,8 +85,6 @@ DittoHbs.prototype.compileTemplate = function(filepath) {
 
 /* Discover Partials */
 DittoHbs.prototype.discoverPartials = function() {
-    console.info("INFO: discoverPartials()");
-
     var self = this,
         partialsDir = path.resolve(self.opt.partials);
 
@@ -97,8 +95,6 @@ DittoHbs.prototype.discoverPartials = function() {
 
 /* Discover Partials */
 DittoHbs.prototype.discoverTemplates = function() {
-    console.info("INFO: discoverPartials()");
-
     var self = this,
         templatesDir = path.resolve(self.opt.templates);
 
@@ -109,8 +105,6 @@ DittoHbs.prototype.discoverTemplates = function() {
 
 /* Register Partials */
 DittoHbs.prototype.registerPartials = function(filepaths) {
-    console.info("INFO: registerPartials()");
-
     var self = this,
         partialsDir = path.resolve(self.opt.partials),
         promises = [];

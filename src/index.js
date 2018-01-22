@@ -16,11 +16,11 @@ function DittoHbs(opt) {
 
   this.files = {};
   this.metadata = {};
-	this.templates = {};
-	
-	if(typeof opt.helpers === 'function'){
-		opt.helpers(hbs);
-	}
+  this.templates = {};
+
+  if (typeof opt.helpers === 'function') {
+    opt.helpers(hbs);
+  }
 };
 
 /* Inherit Event Emitter prototype */
@@ -83,7 +83,7 @@ DittoHbs.prototype.discoverPartials = function() {
     self = this,
     partialsDir = path.resolve(self.opt.partials);
 
-  self.findHandlebars(ath.join(partialsDir, '/*.hbs'), function(err, filepaths) {
+  self.findHandlebars(path.join(partialsDir, '/*.hbs'), function(err, filepaths) {
     self.emit("foundPartials", filepaths);
   });
 };

@@ -1,8 +1,9 @@
 /*
  * Ditto Handlebars Middleware
  */
-const
-  events = require('events'),
+const  
+  async = require('async'),
+  DittoHbsOpt = require('./dittoHbsOpt'),
   fs = require('fs'),
   glob = require('glob'),
   hbs = require('handlebars'),
@@ -12,30 +13,32 @@ const
 module.exports = DittoHbs;
 
 function DittoHbs(opt) {
-  this.opt = opt || this.getDefaultOpt();
+  this.opt = new DittoHbsOpt(opt);
 
   this.files = {};
   this.metadata = {};
-  this.templates = {};
-
-  if (typeof opt.helpers === 'function') {
-    opt.helpers(hbs);
-  }
+  this.templates = {};  
 };
-
-/* Inherit Event Emitter prototype */
-util.inherits(DittoHbs, events.EventEmitter);
 
 /* Run */
 DittoHbs.prototype.run = function(files, Ditto, done) {
   this.files = files;
   this.metadata = Ditto._metadata;
 
-  //register listeners
-  this.registerListeners(done);
+  console.info("*************\n*** ditt0-hbs ***\n*************");
 
-  //kickoff build
-  this.discoverPartials();
+  async.waterfall([
+    this.discoverPartials,
+    this.registerPartials
+  ], function (err, results) {
+    console.log(results);
+  });
+
+  // //register listeners
+  // this.registerListeners(done);
+
+  // //kickoff build
+  // this.discoverPartials();
 };
 
 /* 
@@ -77,14 +80,14 @@ DittoHbs.prototype.compileTemplate = function(filepath) {
   });
 };
 
-/* Discover Partials */
-DittoHbs.prototype.discoverPartials = function() {
-  let
-    self = this,
-    partialsDir = path.resolve(self.opt.partials);
-
-  self.findHandlebars(path.join(partialsDir, '/*.hbs'), function(err, filepaths) {
-    self.emit("foundPartials", filepaths);
+/**
+ * Discover files in partials directory
+ * @param {Function.<Error, Array.<string>>} callback
+ */
+DittoHbs.prototype.discoverPartials = function(callback) {
+  glob(path.join(this.opt.partials, '/*.hbs'), function(err, filepaths) {
+    if(err) callback(err);    
+    callback(null, filepaths);
   });
 };
 
@@ -99,59 +102,29 @@ DittoHbs.prototype.discoverTemplates = function() {
   });
 };
 
-/* Default opt {} */
-DittoHbs.prototype.getDefaultOpt = function() {
-  return {
-    defaultTemplate: 'index',
-    partials: './templates/partials',
-    templates: './templates'
-  };
-};
-
-DittoHbs.prototype.findHandlebars = function(pattern, callback) {
-  glob(pattern, callback);
-};
-
-/* Register Listeners */
-DittoHbs.prototype.registerListeners = function(done) {
-  this.on("foundPartials", this.registerPartials);
-  this.on("registeredPartials", this.discoverTemplates);
-  this.on("foundTemplates", this.compileTemplates);
-  this.on("compiledTemplates", this.renderHtml);
-  this.on("renderHtmlComplete", done);
-};
-
-/* Register Partials */
-DittoHbs.prototype.registerPartials = function(filepaths) {
-  let
-    self = this,
-    partialsDir = path.resolve(self.opt.partials),
-    promises = [];
-
-  filepaths.map(function(filepath) {
-    promises.push(self.registerPartial(path.resolve(partialsDir, filepath)));
+/**
+ * Read hbs partial files
+ * @param {Array.<String>} filepaths 
+ * @param {Function.<Error>} callback
+ */
+DittoHbs.prototype.registerPartials = function(filepaths, callback) {
+  async.map(filepaths, this.registerPartial, function (err) {
+    if (err) callback(err);
+    callback();
   });
-
-  Promise.all(promises)
-    .then(function() {
-      self.emit("registeredPartials");
-    })
-    .catch(function(reason) {
-      console.error(reason);
-      throw new Error(reason);
-    });
 };
 
-/* Register Partial Async */
-DittoHbs.prototype.registerPartial = function(filepath) {
-  return new Promise(function(resolve, reject) {
-    fs.readFile(filepath, 'utf8', function(err, data) {
-      if (err) reject(err);
-      else {
-        hbs.registerPartial(path.parse(filepath).name, data);
-        resolve();
-      }
-    });
+/**
+ * Read file into buffer and register as hbs partials
+ * @param {String} filepath 
+ * @param {Function.<Error>} callback
+ */
+DittoHbs.prototype.registerPartial = function(filepath, callback) {
+  fs.readFile(filepath, 'utf8', function(err, data) {
+    if (err) callback(err);
+    
+    hbs.registerPartial(path.parse(filepath).name, data);
+    callback();
   });
 };
 

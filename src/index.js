@@ -25,19 +25,14 @@ function DittoHbs(opt) {
  * @param {Function} done 
  */
 DittoHbs.prototype.run = function(files, Ditto, done) {
-  console.info("*************\n*** ditt0-hbs ***\n*************");
-
   async.waterfall([
-    this.discoverPartials,
-    this.registerPartials,
-    this.discoverTemplates,
-    this.registerTemplates,
-    function(templates, callback){
-      console.log(templates);
-      // this.renderHtml(files, Ditto, templates, callback)
-    }
-  ], function(err) {
-    done();
+    this.discoverPartials.bind(this),
+    this.registerPartials.bind(this),
+    this.discoverTemplates.bind(this),
+    this.registerTemplates.bind(this),
+    this.renderHtml.bind(this, files, Ditto)
+  ], function(err, files) {
+    done(err, files);
   });
 };
 
@@ -111,10 +106,13 @@ DittoHbs.prototype.registerTemplates = function(filepaths, callback) {
  * @param {String} filepath 
  * @param {Function.<Error, Object>} callback
  */
-DittoHbs.prototype.registerTemplate = function(filepath, callback) {   
-  fs.readFile(filepath, 'utf8', function(err, data) { 
-    if (err) callback(err); 
-    callback(null, hbs.compile(data));
+DittoHbs.prototype.registerTemplate = function(filepath, callback) {
+  fs.readFile(filepath, 'utf8', function(err, data) {
+    if (err) callback(err);
+    callback(null, {
+      name: path.parse(filepath).name,
+      template: hbs.compile(data)
+    });
   });
 };
 
@@ -125,32 +123,29 @@ DittoHbs.prototype.registerTemplate = function(filepath, callback) {
  * @param {Function.<Error>} callback
  */
 DittoHbs.prototype.renderHtml = function(files, Ditto, templates, callback) {
-  files.forEach(function(file){
+  let self = this;
+
+  files.forEach(function(file) {
     let
       parsedPath = path.parse(file.path),
       newFileDotPath = (parsedPath.name !== "index") ?
         path.join(parsedPath.dir, parsedPath.name, "index.html") :
-        path.join(parsedPath.dir, parsedPath.name + ".html");
-  });
-  let self = this;
-
-  Object.keys(self.files).forEach(function(filepath) {
-    let
-      file = self.files[filepath],
-      parsedPath = path.parse(filepath),
-      tmpl = file.template || self.opt.defaultTemplate,
-      newFileDotPath = (parsedPath.name !== "index") ?
-      path.join(parsedPath.dir, parsedPath.name, "index.html") :
-      path.join(parsedPath.dir, parsedPath.name + ".html");
-
-    //strip extension if its there
-    tmpl = path.parse(tmpl).name;
-
-    if (self.metadata) file.content.metadata = self.metadata;
-
-    file.content = self.templates[tmpl](file.content);
-    file.path = newFileDotPath;
+        path.join(parsedPath.dir, parsedPath.name + ".html"),
+      potentialTemplateNames = [parsedPath.name, parsedPath.dir.replace('/', '-'), self.opt.defaultTemplate];
+    
+    //resolve template
+    potentialTemplateNames.some(function(potentialTemplateName){
+      var tmpl = templates.find(function(template){ return template.name == potentialTemplateName });
+      
+      if(tmpl){
+        //render
+        file.content.metadata = Ditto._metadata;
+        file.content = tmpl.template(file.content);
+        file.path = newFileDotPath;
+        return true;
+      }
+    });
   });
 
-  self.emit("renderHtmlComplete");
+  callback(null, files);
 };

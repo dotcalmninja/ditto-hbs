@@ -3,72 +3,68 @@ const
   DittoHbs = require('../src'),
   DittoHbsOpt = require('../src/dittoHbsOpt');
 
-let
+const
   fakeOpt = {
     defaultTemplate: 'index',
     partials: './spec/support/files/partials',
     templates: './spec/support/files/templates'
   },
   fakeOptHbs = new DittoHbsOpt(fakeOpt);
+  emptyInstance = new DittoHbs(),
+  fakeOptInstance = new DittoHbs(fakeOptHbs);
 
-describe('ditt0-hbs opt', function() {
-
+describe('ditt0-hbs', function() {
   /**
    * opt tests
    */
   it('should be equal to getDefaultOpt()', function() {
-    let
-      testInstance = new DittoHbs(),
-      defaultOpt = new DittoHbsOpt();
-
-    expect(testInstance.opt).toEqual(defaultOpt);
+    let defaultOpt = new DittoHbsOpt();
+    expect(emptyInstance.opt).toEqual(defaultOpt);
   });
 
   it('should be non default params', function() {
-    let testInstance = new DittoHbs(fakeOpt);
-
-    expect(testInstance.opt.defaultTemplate).toEqual(fakeOpt.defaultTemplate);
-    expect(testInstance.opt.partials).toEqual(fakeOpt.partials);
-    expect(testInstance.opt.templates).toEqual(fakeOpt.templates);
+    expect(fakeOptInstance.opt.defaultTemplate).toEqual(fakeOpt.defaultTemplate);
+    expect(fakeOptInstance.opt.partials).toEqual(fakeOpt.partials);
+    expect(fakeOptInstance.opt.templates).toEqual(fakeOpt.templates);
+    expect(fakeOptInstance.opt).toEqual(fakeOptHbs);
   })
 
-  it('should be equal to fakeOpt', function() {
-    let testInstance = new DittoHbs(fakeOpt);
-
-    expect(testInstance.opt).toEqual(fakeOptHbs);
-  });
-});
-
-describe('ditt0-hbs discover partials', function() {
   /**
    * discover partials test
    */
   it('should find one partial', function() {
-    let testInstance = new DittoHbs(fakeOpt);
-
-    testInstance.discoverPartials(function(err, partials) {
+    fakeOptInstance.discoverPartials(function(err, partials) {
       expect(partials.length).toEqual(1);
       expect(partials[0]).toEqual('spec/support/files/partials/header.hbs');
     });
   });
-});
 
-describe('ditt0-hbs register partials', function() {
-  let 
-    testInstance = new DittoHbs(fakeOpt),
-    filepaths = [];
-
-  beforeAll(function(done) {
-    testInstance.discoverPartials(function(err, partials) {
-      filepaths = partials;
-
-      done();
+  /**
+   * discover templates test
+   */
+  it('should find one template', function() {
+    fakeOptInstance.discoverTemplates(function(err, templates) {
+      expect(templates.length).toEqual(1);
+      expect(templates[0]).toEqual('spec/support/files/templates/index.hbs');
     });
   });
 
+  /**
+   * register template
+   */
+  it('should register one template', function(){
+    fakeOptInstance.registerTemplate('spec/support/files/templates/index.hbs', function(err, template){
+      expect(err).not.toBeNull();      
+    });
+  });
+
+  /**
+   * register partial
+   */
   it('should register one partial', function(){
-    testInstance.registerPartials(filepaths, function(err){
-      expect(err).toEqual('undefined');
+    fakeOptInstance.registerPartial('spec/support/files/partials/header.hbs', function(err){
+      expect(err).not.toBeNull();
     });
   });
+  
 });

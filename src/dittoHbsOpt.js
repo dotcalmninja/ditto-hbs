@@ -1,4 +1,5 @@
 const
+  hbs = require('handlebars'),
   path = require('path');
 
 module.exports = DittoHbsOpt;

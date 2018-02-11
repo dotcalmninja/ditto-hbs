@@ -12,11 +12,11 @@
     "handlebars": "^4.0.11"
   },
   "devDependencies": {
-    "ditt0":"^1.0.3",
+    "ditt0":"^1.0.0",
     "jasmine": "^2.8.0"
   },
   "author": "Pim Brouwers",
-  "license": "GPL-3.0",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/pimbrouwers/ditto-hbs.git"

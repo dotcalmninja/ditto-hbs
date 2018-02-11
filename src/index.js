@@ -128,9 +128,7 @@ DittoHbs.prototype.renderHtml = function(files, Ditto, templates, callback) {
   files.forEach(function(file) {
     let
       parsedPath = path.parse(file.path),
-      newFileDotPath = (parsedPath.name !== "index") ?
-        path.join(parsedPath.dir, parsedPath.name, "index.html") :
-        path.join(parsedPath.dir, parsedPath.name + ".html"),
+      newFileDotPath = path.join(parsedPath.dir, parsedPath.name + ".html"),
       potentialTemplateNames = [parsedPath.name, parsedPath.dir.replace('/', '-'), self.opt.defaultTemplate];
     
     //resolve template

@@ -2,7 +2,7 @@
  * Ditto Handlebars Middleware
  */
 const
-async = require('async'),
+  async = require('async'),
   DittoHbsOpt = require('./dittoHbsOpt'),
   fs = require('fs'),
   glob = require('glob'),

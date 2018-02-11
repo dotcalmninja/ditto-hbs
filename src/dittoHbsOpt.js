@@ -6,7 +6,7 @@ module.exports = DittoHbsOpt;
 
 function DittoHbsOpt(opt) {
   opt = opt || {};
-  
+
   this.defaultTemplate = opt.defaultTemplate || 'index';
   this.partials = opt.partials || './templates/partials';
   this.templates = opt.templates || './templates';

@@ -126,10 +126,11 @@ DittoHbs.prototype.renderHtml = function(files, Ditto, templates, callback) {
   let self = this;
 
   files.forEach(function(file) {
-    let
-      parsedPath = path.parse(file.path),
-      newFileDotPath = path.join(parsedPath.dir, parsedPath.name + ".html"),
-      potentialTemplateNames = [parsedPath.name, parsedPath.dir.replace('/', '-'), self.opt.defaultTemplate];
+    //update the file extension as we're writing rendering html now
+    file.path.ext = '.html';
+
+    //build up array of potential templates
+    let potentialTemplateNames = [file.path.name, parsedPath.dir.replace('/', '-'), self.opt.defaultTemplate];
     
     //resolve template
     potentialTemplateNames.some(function(potentialTemplateName){
@@ -138,8 +139,7 @@ DittoHbs.prototype.renderHtml = function(files, Ditto, templates, callback) {
       if(tmpl){
         //render
         file.content.metadata = Ditto._metadata;
-        file.content = tmpl.template(file.content);
-        file.path = newFileDotPath;
+        file.content = tmpl.template(file.content);        
         return true;
       }
     });

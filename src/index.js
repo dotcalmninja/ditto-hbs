@@ -130,7 +130,7 @@ DittoHbs.prototype.renderHtml = function(files, Ditto, templates, callback) {
     file.path.ext = '.html';
 
     //build up array of potential templates
-    let potentialTemplateNames = [file.path.name, parsedPath.dir.replace('/', '-'), self.opt.defaultTemplate];
+    let potentialTemplateNames = [file.path.name, file.path.dir.replace('/', '-'), self.opt.defaultTemplate];
     
     //resolve template
     potentialTemplateNames.some(function(potentialTemplateName){

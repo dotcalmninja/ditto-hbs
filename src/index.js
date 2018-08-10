@@ -15,25 +15,17 @@ module.exports = dittoHbs;
 function dittoHbs(opt) {
   this.opt = new dittoHbsOpt(opt);
 
-  return this.run;
-};
-
-/**
- * Ditto Handlebars middleware
- * @param {Array.<Object.<DittoFile>>} files 
- * @param {Object.<Ditto>} Ditto 
- * @param {Function} done 
- */
-dittoHbs.prototype.run = function(files, ditto, done) {
-  async.waterfall([
-    this.discoverPartials.bind(this),
-    this.registerPartials.bind(this),
-    this.discoverTemplates.bind(this),
-    this.registerTemplates.bind(this),
-    this.renderHtml.bind(this, files, ditto)
-  ], function(err, files) {
-    done(err, files);
-  });
+  return function (files, ditto, done) {
+    async.waterfall([
+      this.discoverPartials.bind(this),
+      this.registerPartials.bind(this),
+      this.discoverTemplates.bind(this),
+      this.registerTemplates.bind(this),
+      this.renderHtml.bind(this, files, ditto)
+    ], function (err, files) {
+      done(err, files);
+    });
+  };
 };
 
 /**

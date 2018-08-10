@@ -128,6 +128,13 @@ DittoHbs.prototype.renderHtml = function(files, Ditto, templates, callback) {
   files.forEach(function(file) {
     //update the file extension as we're writing rendering html now
     file.path.ext = '.html';
+  
+    if(file.path.name != 'index')
+    {
+      name = path.join(file.path.name, 'index');
+    }
+
+    //if this isn't the base index
 
     //build up array of potential templates
     let potentialTemplateNames = [file.path.name, file.path.dir.replace('/', '-'), self.opt.defaultTemplate];

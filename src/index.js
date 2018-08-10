@@ -131,7 +131,7 @@ DittoHbs.prototype.renderHtml = function(files, Ditto, templates, callback) {
   
     if(file.path.name != 'index')
     {
-      name = path.join(file.path.name, 'index');
+      file.path.name = path.join(file.path.name, 'index');
     }
 
     //if this isn't the base index

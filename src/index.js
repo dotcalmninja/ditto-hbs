@@ -3,19 +3,19 @@
  */
 const
   async = require('async'),
-  DittoHbsOpt = require('./dittoHbsOpt'),
+  dittoHbsOpt = require('./opt'),
   fs = require('fs'),
   glob = require('glob'),
   hbs = require('handlebars'),
   path = require('path'),
   util = require('util');
 
-module.exports = DittoHbs;
+module.exports = dittoHbs;
 
-function DittoHbs(opt) {
-  this.opt = new DittoHbsOpt(opt);
+function dittoHbs(opt) {
+  this.opt = new dittoHbsOpt(opt);
 
-  this.metadata = {};
+  return this.run;
 };
 
 /**
@@ -24,13 +24,13 @@ function DittoHbs(opt) {
  * @param {Object.<Ditto>} Ditto 
  * @param {Function} done 
  */
-DittoHbs.prototype.run = function(files, Ditto, done) {
+dittoHbs.prototype.run = function(files, ditto, done) {
   async.waterfall([
     this.discoverPartials.bind(this),
     this.registerPartials.bind(this),
     this.discoverTemplates.bind(this),
     this.registerTemplates.bind(this),
-    this.renderHtml.bind(this, files, Ditto)
+    this.renderHtml.bind(this, files, ditto)
   ], function(err, files) {
     done(err, files);
   });
@@ -41,7 +41,7 @@ DittoHbs.prototype.run = function(files, Ditto, done) {
  * @param {String} pattern glob pattern
  * @param {Function.<Error, Array.<string>>} callback
  */
-DittoHbs.prototype.discover = function(pattern, callback) {
+dittoHbs.prototype.discover = function(pattern, callback) {
   glob(pattern, function(err, filepaths) {
     if (err) callback(err);
     callback(null, filepaths);
@@ -52,7 +52,7 @@ DittoHbs.prototype.discover = function(pattern, callback) {
  * Discover files in partials directory
  * @param {Function.<Error, Array.<string>>} callback
  */
-DittoHbs.prototype.discoverPartials = function(callback) {
+dittoHbs.prototype.discoverPartials = function(callback) {
   this.discover(path.join(this.opt.partials, '/*.hbs'), callback)
 };
 
@@ -60,7 +60,7 @@ DittoHbs.prototype.discoverPartials = function(callback) {
  * Discover files in templates directory
  * @param {Function.<Error, Array.<string>>} callback
  */
-DittoHbs.prototype.discoverTemplates = function(callback) {
+dittoHbs.prototype.discoverTemplates = function(callback) {
   this.discover(path.join(this.opt.templates, '/*.hbs'), callback);
 };
 
@@ -69,7 +69,7 @@ DittoHbs.prototype.discoverTemplates = function(callback) {
  * @param {Array.<String>} filepaths 
  * @param {Function.<Error>} callback
  */
-DittoHbs.prototype.registerPartials = function(filepaths, callback) {
+dittoHbs.prototype.registerPartials = function(filepaths, callback) {
   async.map(filepaths, this.registerPartial, function(err) {
     if (err) callback(err);
     callback(null);
@@ -81,7 +81,7 @@ DittoHbs.prototype.registerPartials = function(filepaths, callback) {
  * @param {String} filepath 
  * @param {Function.<Error>} callback
  */
-DittoHbs.prototype.registerPartial = function(filepath, callback) {
+dittoHbs.prototype.registerPartial = function(filepath, callback) {
   fs.readFile(filepath, 'utf8', function(err, data) {
     if (err) callback(err);
     hbs.registerPartial(path.parse(filepath).name, data);
@@ -94,7 +94,7 @@ DittoHbs.prototype.registerPartial = function(filepath, callback) {
  * @param {Array.<String>} filepaths 
  * @param {Function.<Error>} callback
  */
-DittoHbs.prototype.registerTemplates = function(filepaths, callback) {
+dittoHbs.prototype.registerTemplates = function(filepaths, callback) {
   async.map(filepaths, this.registerTemplate, function(err, templates) {
     if (err) callback(err);
     callback(null, templates);
@@ -106,7 +106,7 @@ DittoHbs.prototype.registerTemplates = function(filepaths, callback) {
  * @param {String} filepath 
  * @param {Function.<Error, Object>} callback
  */
-DittoHbs.prototype.registerTemplate = function(filepath, callback) {
+dittoHbs.prototype.registerTemplate = function(filepath, callback) {
   fs.readFile(filepath, 'utf8', function(err, data) {
     if (err) callback(err);
     callback(null, {
@@ -122,19 +122,12 @@ DittoHbs.prototype.registerTemplate = function(filepath, callback) {
  * @param {Array.<Object>} templates
  * @param {Function.<Error>} callback
  */
-DittoHbs.prototype.renderHtml = function(files, Ditto, templates, callback) {
+dittoHbs.prototype.renderHtml = function(files, Ditto, templates, callback) {
   let self = this;
 
   files.forEach(function(file) {
-    //update the file extension as we're writing rendering html now
+    //update the file extension  we're writing rendering html now
     file.path.ext = '.html';
-  
-    if(file.path.name != 'index')
-    {
-      file.path.name = path.join(file.path.name, 'index');
-    }
-
-    //if this isn't the base index
 
     //build up array of potential templates
     let potentialTemplateNames = [file.path.name, file.path.dir.replace('/', '-'), self.opt.defaultTemplate];

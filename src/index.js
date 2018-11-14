@@ -104,7 +104,7 @@ function dittoHbs(opt) {
   function renderHtml(files, ditto, templates, callback) {
     files.forEach(function (file) {
       //update the file extension  we're writing rendering html now
-      file.path.ext = '.html';
+      file.setExt('.html');
 
       //build up array of potential templates
       let potentialTemplateNames = [file.path.name, file.path.dir.replace('/', '-'), opt.defaultTemplate];

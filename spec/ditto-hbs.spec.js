@@ -1,7 +1,7 @@
 const
   Ditto = require('ditt0'),
   DittoHbs = require('../src'),
-  DittoHbsOpt = require('../src/dittoHbsOpt');
+  DittoHbsOpt = require('../src/opt');
 
 const
   fakeOpt = {
